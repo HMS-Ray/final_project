@@ -12,6 +12,8 @@ output:
     code_folding: show
 ---
 
+This is the GitHub Repo for this project - https://github.com/HMS-Ray/final_project
+
 ## Ask a manager: Data on annual salary from a survey
 
 ### Introduction
@@ -20,21 +22,18 @@ The following project focuses on the analysis of a dataset on annual salaries. A
 
 ### Executive Summary
 
-The dataset obtained from the survey  contained a large number of respondents that were predominantly white females with high education levels.Due to the limited observations for countries other that the US we decided to focus our entire analysis only on US-Salary (respondents from the US). In addition, as part of our data cleaning we eliminated some of the columns that were not directly related with annual salary and/or contained too many individual answers (i.e. job title), thus making it hard to conclude something from them. After building a clean and workable dataset, the exploratory data analysis was performed and visualized to get a better understanding of the survey respondents and the data in general. We build the following `hypothesis test`:
+The dataset obtained from the survey  contained a large number of respondents that were predominantly white females with high education levels.Due to the limited observations for countries other that the US we decided to focus our entire analysis only on US-Salary (respondents from the US). In addition, as part of our data cleaning we eliminated some of the columns that were not directly related with annual salary and/or contained too many individual answers (i.e. job title), thus making it hard to conclude something from them. After building a clean and workable dataset, the exploratory data analysis was performed and visualized to get a better understanding of the survey respondents and the data in general. We build the following *hypothesis test*:
 
 - Hypothesis 1 - Difference in Tech Salary among Gender: We observe that the average annual salary for man and woman in the tech industry is significantly difference.
-- Hypothesis 2 - Different in Tech-proportion among cities: Proportion of tech-employees in San Francisco is significantly different than in other US cities.
+- Hypothesis 2 - Difference in the proportion of tech-employees among cities: Proportion of tech-employees in San Francisco is significantly different than in other US cities.
 - Hypothesis 3 - Difference in Salary by Race: Confidence intervals of Asians with other races don’t overlap therefore and is significantly different than other races
-- Hypothesis 4 - Difference of Tech-Proportion among Race: Proportion of Asians working in Tech (9.39%) is significantly different than proportion of Asians working in other industries (5.38%) as P-value < 2e-16. 
+- Hypothesis 4 - Difference in the proportion of Tech-employees by race: Proportion of Asians working in Tech (9.39%) is significantly different than proportion of Asians working in other industries (5.38%) as P-value < 2e-16. 
 
+Further, we build *regression models*. We compared the distributions of \"annual salary\" and \"log of annual salary\" and chose log of annual salary as our dependent variable (Y), as it fit into normal distribution more closely. Based on the exploratory data analysis, we picked our explanatory variables.
 
-Further, we built `regression models`. First had to decide which variable we were going to use as our dependent variable because we have two choices——\"annual salary\" and \"log annual salary\". After plotting two distribution graphs, we found out that \"log annual salary\" fit into a normal distribution and thus we decided to choose \"log annual salary\" for models generation.
+However, we observed that all of our independent variables were categorical. If we included the variables without any manipulation and grouping, our data would have been very sparse and the model would have had a large number of variables. Hence, in order to reduce the sparsity of the data, we combined some of the categories of our explanatory variables.
 
-We then took a look at \"age\", \"overall_experience\" and \"field_experience\" three variables because people would become older as they have more years of working experiences. Hence, we run 3 very simple models with each of these as explanatory variable to analyze which of these does the best job of explaining the variability in log of annual salary. All three variables passed t-tests and we finally chose \"field_experience\" as it had the largest R^squared. It also made sense logically since jobs nowadays require people to acquire more specific experiences in order to perform well.
-
-Then we met another problem. We had too many categorical variables in our dataset and if we included most of them without merging some of groups, the model will become both huge and hard to explain. Thus, we did some works on combination for \"field_experience\", \"education_level\", \"industry\" and \"state\". You could find more detailed explanations on how we regroup them later in comments for the regression part. Knowing that we create \"field_exp_grouped\", \"edu_level_grouped\", \"industry_grouped\" and \"state_grouped\" four variables used for models now would be enough.
-
-Thereafter, we built six regression models through iteration and we split our dataset by 0.75:0.25 into train and test groups. The final model we regarded as our best includes six independent variables: \"field_exp_grouped\", \"race_cleaned\", \"gender\", \"edu_level_grouped\", \"industry_grouped\", \"state_grouped\" which has a R-squared value of 0.44 and a RMSE of 0.1068. This model also passed both vif and diagnostic tests so we could extract insights from it. We concluded that people with poor field experiences would get a significant disadvantage on their salary, Hispanic, Latino, or Spanish origin and women were groups paid much lower, people should look for jobs in rich states if they want to have higher annual salary, professional degree gives you a greater salary boost than a PhD, and avoid education and nonprofits industries but Computing or Tech industry instead if you want to get an attractive pay.
+After doing data manipulation and regrouping the variables, we split the data into train and test sets so that we could pick the best model based on Adjusted R squared and the RMSE on the test set. We started iterating with different regression models and picked the best model that had an Adjusted R squared of 44% and a test RMSE of 0.11. We proceeded with VIF calculation and Residual Analysis, and this model looked good. We concluded that people with poor field experiences would get a significant disadvantage on their salary, Hispanic, Latino, or Spanish origin and women were groups paid much lower, people should look for jobs in rich states if they want to have higher annual salary, professional degree gives you a greater salary boost than a PhD, and avoid education and nonprofits industries but Computing or Tech industry instead if you want to get an attractive pay.
 
 
 ```{r, setup, echo=FALSE}
@@ -454,8 +453,7 @@ us_data %>%
   scale_fill_brewer(palette="Blues") + theme_classic()+
    labs(x="Overall Experience", 
        y="Annual Salary",
-       title="Annual salary for different experience levels",
-       subtitle="Ordered by mean")+
+       title="Annual salary for different experience levels")+
   theme_bw()+
   theme(axis.text.x = element_text(angle = 45, vjust = 0.5))+
   guides(fill=FALSE)+
@@ -463,6 +461,7 @@ us_data %>%
 
 ```
 
+> On average, as overall experience increases, the median salary increases, and the variability increases but decreases towards the end.
 
 ```{r, salary for different experience, fig.width = 12}
 us_data %>%
@@ -473,8 +472,7 @@ us_data %>%
   scale_fill_brewer(palette="Blues") + theme_classic()+
   labs(x="Field Experience", 
        y="Annual Salary",
-       title="Annual salary for different field experience",
-       subtitle="Ordered by mean")+
+       title="Annual salary for different field experience")+
   theme_bw()+
   theme(axis.text.x = element_text(angle = 45, vjust = 0.5))+
   guides(fill=FALSE)+
@@ -483,6 +481,8 @@ us_data %>%
   NULL
 ```
 
+
+> On average, as field experience increases, the median salary increases, and the variability increases but decreases towards the end.
 
 ```{r, average salary vs age, fig.width = 12}
 
@@ -504,6 +504,7 @@ us_data %>%
 
 ```
 
+> Except the Under 18 category, the median annual salary increases as age increases. The anomalous behaviour of under 18 category could be due to less number of data points.
 
 ```{r, education vs salary, fig.width = 12}
 
@@ -512,16 +513,16 @@ us_data %>%
   geom_violin() +
   scale_fill_brewer(palette="Blues") + theme_classic()+
   geom_boxplot(width=0.1)+
-  #geom_text(aes(label=round(mean(annual_salary),0)),size=3,vjust=-0.25)+
   labs(x="Education Level", 
        y="Annual Salary",
-       title="Annual salary for different education levels",
-       subtitle="mean increases across the plot")+
+       title="Annual salary for different education levels")+
   theme_bw()+
   guides(fill=FALSE)+
   NULL
 
 ```
+
+> On average, more educated people have a higher median salary, although this difference is low for High School and Some college.
 
 > To futher investgate why salary of men is higher than woman, we make a graph of the industries they work in. We filter for industries that have more than 500 respondents and surprisingly find that all men work in computing or tech industry. 
 
@@ -646,9 +647,35 @@ ggplot(states_pivot, aes(x=reorder(state, diff), y=diff, label=diff)) +
 
 >We observe that most of the states have a higher average salary for males, as compared to females. The difference is the largest for South Dakota and Arkansas. For only 3 states - Oklahoma, Wyoming and Maine, the average salary of females is higher.
 
-_Observations for Hypothesis 1 from Exploratory Data Analysis_
+*Observations for Hypothesis 1 from Exploratory Data Analysis*
 
 >- Observation 1: Mean salary men > Mean salary women
+
+```{r, mean_salary_by_gender}
+#boxplots
+us_data %>% 
+  group_by(gender) %>% 
+  ggplot(aes(x=gender, y=annual_salary))+
+  geom_violin()+
+  geom_boxplot(width=0.3)+
+  labs(x="Gender", 
+       y="Annual Salary",
+       title="Annual Salary for Gender (US)")+
+  theme_bw()
+
+us_data %>% 
+  filter(industry == "Computing or Tech") %>% 
+  group_by(gender) %>% 
+  ggplot(aes(x=gender, y=annual_salary))+
+  geom_violin()+
+  geom_boxplot(width=0.3)+
+   labs(x="Gender", 
+       y="Annual Salary in Tech",
+       title="Annual Salary in Tech for Gender (US)")+
+  theme_bw()
+```
+
+
 >- Observation 2: Computing & Tech is highest paid industry
 >- Observation 3: All male respondents work in Tech
 
@@ -677,8 +704,9 @@ us_data_menvswomen <- us_data%>%
             salary_low = mean_salary - margin_of_error,
             salary_high = mean_salary + margin_of_error) %>% 
   arrange(desc(mean_salary))
-  us_data_menvswomen
   
+print(us_data_menvswomen, width = Inf)
+
  # using welch  t test
 us_data_2 <- us_data %>% 
     filter(industry == "Computing or Tech") %>% 
@@ -686,33 +714,11 @@ us_data_2 <- us_data %>%
 
 
 t.test(annual_salary ~ gender , data = us_data_2)
-
-#boxplots
-us_data %>% 
-  group_by(gender) %>% 
-  ggplot(aes(x=gender, y=annual_salary))+
-  geom_violin()+
-  geom_boxplot(width=0.3)+
-  labs(x="Gender", 
-       y="Annual Salary",
-       title="Annual Salary for Gender (US)")+
-  theme_bw()
-
-us_data %>% 
-  filter(industry == "Computing or Tech") %>% 
-  group_by(gender) %>% 
-  ggplot(aes(x=gender, y=annual_salary))+
-  geom_violin()+
-  geom_boxplot(width=0.3)+
-   labs(x="Gender", 
-       y="Annual Salary in Tech",
-       title="Annual Salary in Tech for Gender (US)")+
-  theme_bw()
 ```
 
 > We use confidence interval and t-test to show the difference. The confidence interval of men is [142345,149903] which is not overlapping with women [116518,121502] and p-value in the t-test is <2e-16. Therefore, we reject the null hypothesis and conclude there is a significant difference in annual salary between men and women who work in tech industry.
 
-_Observations for Hypothesis 2 from Exploratory Data Analysis_
+*Observations for Hypothesis 2 from Exploratory Data Analysis*
 
 ```{r, salaries across USA cities}
 #create a table with mean salaries across different US cities
@@ -737,9 +743,10 @@ us_data %>%
 
 ### Hypothesis 2:
 
-Null Hypothesis $H_0$ : $p_{SF.tech} = p_{notSF.tech} $
+Null Hypothesis $H_0$ : $p_{SF.tech} = p_{notSF.tech}$
 
-Alternative Hypothesis $H_1$ : $p_{SF.tech} \neq p_{notSF.tech} $
+Alternative Hypothesis $H_1$ : $p_{SF.tech} \neq p_{notSF.tech}$
+
 ```{r, SF hypothesis}
 
 #we will examine if San Francisco holds a bigger proportion of tech employees than other cities
@@ -770,7 +777,7 @@ res1
 
 > We observe that in San Francisco the proportion of tech-employees is 48% vs. 16% in other US cities. Proportion of tech-employees in San Francisco is significantly different than in other US cities as P-value < 2e-16. 
 
-_Observations for Hypothesis 3 from Exploratory Data Analysis_
+*Observations for Hypothesis 3 from Exploratory Data Analysis*
 
 ```{r, race in tech, fig.width = 12}
 #plot race in tech industry
@@ -814,9 +821,9 @@ us_data %>%
 > In the previous two graphs, we see that mean salary of Asian/Asian American is higher than other races. We want to know if this result is significant.
 
 ### Hypothesis 3:
-Null Hypothesis $H_0$ : $p_{Asian.Salary} = p_{White.Salary} $
+Null Hypothesis $H_0$ : $p_{Asian.Salary} = p_{White.Salary}$
 
-Alternative Hypothesis $H_1$ : $p_{Asian.Salary} \neq p_{White.Salary} $
+Alternative Hypothesis $H_1$ : $p_{Asian.Salary} \neq p_{White.Salary}$
 
 ```{r, t test between salaries for different races}
 
@@ -844,7 +851,7 @@ t.test(annual_salary ~ race_cleaned , data = us_data_race)
 
 > By comparing the confidence interval of annual income between each race, we see there is no overlap between Asian and other races. And the t-test between Asian and White has a p-value <2e-16. Therefore, we conclude annual salary of Asian is significantly higher than other races.
 
-_Observations for Hypothesis 4 from Exploratory Data Analysis_
+*Observations for Hypothesis 4 from Exploratory Data Analysis*
 
 ```{r, race_proportion_tech}
 us_data %>% 
@@ -899,8 +906,9 @@ us_data %>%
 ### Hypothesis 4:
 
 
-Null Hypothesis $H_0$ : $p_{Asian.tech} = p_{other.tech} $
-Alternative Hypothesis $H_1$ : $p_{Asian.tech} \neq p_{other.tech} $
+Null Hypothesis $H_0$ : $p_{Asian.tech} = p_{other.tech}$
+
+Alternative Hypothesis $H_1$ : $p_{Asian.tech} \neq p_{other.tech}$
 
 ```{r, proportion of asians in tech vs in other idustries}
 
@@ -1478,6 +1486,17 @@ autoplot(model6, which = 1:2) +
 >By performing Residual Analysis, we observe that there is no significant pattern in the Residuals vs Fitted values plot. We can conclude that there is no strong evidence of non-linear relationship between X & Y or non-constant variance. There seems to be no significant pattern in the data that is currently unaccounted for.
 
 >The Q-Q plot has most of the values on the straight line between -2 and +2. Hence, we can conclude that the residuals follow a Normal Distribution.
+
+>From the coefficients of the model, we can conlude that -
+
+>1. People with poor field experiences would get a significant disadvantage on their salary.
+
+>2. Hispanic, Latino, or Spanish origin and women were groups paid much lower.
+
+>3. People should look for jobs in rich states if they want to have higher annual salary, professional degree gives you a greater salary boost than a PhD.
+
+>4. Avoid education and nonprofits industries but choose Computing or Tech industry instead if you want to get an attractive pay.
+
 
 
 >We conclude that the log of annual salary can be best explained by the model with field_exp_grouped, race_cleaned, gender, edu_level_grouped, industry_grouped and state_grouped. We are able to explain 44% of the variability in log of annual salaries.
